@@ -16,6 +16,7 @@ import diana.abstract.models as abstract
 class Term(abstract.AbstractBaseModel):
     """A unique word occurring in documents (type, not token, can be numeric)."""
 
+    term_id = models.AutoField(primary_key=True)
     # The word in lowercase
     term_term = models.CharField(unique=True, max_length=100)
     # # Not used?
@@ -23,13 +24,17 @@ class Term(abstract.AbstractBaseModel):
     # # Document frequency, how many documents contain the word at least once
     term_df = models.IntegerField(blank=True, null=True)
 
-    def __str__(self) -> str:
-        return f"{self.term_term}"
+    # def __str__(self):
+    #     return {self.term_id}
+
+    class Meta:
+        db_table = 'term'
 
 
 class DocTerm(abstract.AbstractBaseModel):
     """Mapping of a certain term in a certain document."""
 
+    doc_term_id = models.AutoField(primary_key=True)
     # The document where it occurs at least once
     doc_id = models.ForeignKey('Document', on_delete=models.PROTECT, db_column='doc_id', related_name='doc_terms')
     # The term
@@ -37,10 +42,13 @@ class DocTerm(abstract.AbstractBaseModel):
     # Term frequency, how many times the term occurs in the document
     tf = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        db_table = 'doc_term'
 
 class Document(abstract.AbstractBaseModel):
     """An encyclopedic article on a topic."""
 
+    doc_id = models.AutoField(primary_key=True)
     # The topic, one or a few words
     doc_keyword = models.CharField(max_length=100)
     # Full description, may contain HTML tags
@@ -50,12 +58,15 @@ class Document(abstract.AbstractBaseModel):
     # Running number unique among documents with same keyword, starting from 0
     doc_suppl = models.IntegerField(blank=True, null=True)
 
+    class Meta:
+        db_table = 'document'
 
 class Termsim(abstract.AbstractBaseModel):
     """Similarity of two terms.
 
     Each term pair occurs twice – once in each direction."""
 
+    termsim_id = models.AutoField(primary_key=True)
     # Term one
     target = models.ForeignKey('Term', on_delete=models.PROTECT, db_column='term1_id', related_name='neighbors')
     # Term two
@@ -63,10 +74,15 @@ class Termsim(abstract.AbstractBaseModel):
     # Similarity between 0 and 1
     similarity = models.FloatField()
 
+    class Meta:
+        db_table = 'termsim'
 
 
 class Entity(abstract.AbstractBaseModel):
-    doc_id = models.IntegerField(blank=True, null=True)
+    ent_id = models.AutoField(primary_key=True)
+    # doc_id = models.IntegerField(blank=True, null=True)
     ent_type = models.TextField()
     ent_name = models.TextField()
 
+    class Meta:
+        db_table = 'entity'
