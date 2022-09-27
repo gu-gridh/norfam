@@ -80,7 +80,7 @@ class Termsim(abstract.AbstractBaseModel):
 
 class Entity(abstract.AbstractBaseModel):
     ent_id = models.AutoField(primary_key=True)
-    # doc_id = models.IntegerField(blank=True, null=True)
+    doc_id = models.IntegerField(blank=True, null=True)
     ent_type = models.TextField()
     ent_name = models.TextField()
 
