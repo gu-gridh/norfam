@@ -80,22 +80,24 @@ class EntityViewSet(viewsets.ModelViewSet):
 class QueryViewSet(viewsets.ModelViewSet):
     serializer_class = QuerySerializer
     def get_queryset(self):
+        search_mode = "w"
         if "m" in self.request.GET:
-            search_mode = self.request.GET.get("m")
-        print(search_mode)
-        q = [str(term).lower() for term in re.split(r"\s+", self.request.GET.get('q'))]
+            search_mode = self.request.GET["m"]
+        q = [str(term).lower() for term in re.split(r"\s+", self.request.GET["q"])]
         if search_mode == "t":
+            tic = timeit.default_timer()
             queryset = Document.objects.distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
             ).select_related().filter(doc_terms__term__term_term__in=q).all()
+            toc = timeit.default_timer()
+            print(toc-tic)
             return sorted(queryset, key=cmp_to_key(sort_tfidf))
+            
         else:
             from django.db.models.functions import Lower
             queryset = Document.objects.annotate(doc_keyword_lower=Lower('doc_keyword')).distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
             ).filter(doc_keyword_lower__in=q).all()
-            print(queryset.query)
-            print(queryset)
             return queryset
 
 # class QueryViewSet(viewsets.ModelViewSet):

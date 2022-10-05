@@ -23,11 +23,11 @@ class Term(abstract.AbstractBaseModel):
     term_stem = models.CharField(max_length=100, blank=True, null=True)
     # # Document frequency, how many documents contain the word at least once
     term_df = models.IntegerField(blank=True, null=True)
-
-    # def __str__(self):
-    #     return {self.term_id}
+    # # Documents edition
+    version = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        # managed = False
         db_table = 'term'
 
 
@@ -41,8 +41,10 @@ class DocTerm(abstract.AbstractBaseModel):
     term = models.ForeignKey('Term', on_delete=models.PROTECT, db_column='term_id')
     # Term frequency, how many times the term occurs in the document
     tf = models.IntegerField(blank=True, null=True)
-
+    # # Documents edition
+    version = models.IntegerField(blank=True, null=True)
     class Meta:
+        # managed = False
         db_table = 'doc_term'
 
 class Document(abstract.AbstractBaseModel):
@@ -57,8 +59,11 @@ class Document(abstract.AbstractBaseModel):
     doc_abstr = models.CharField(max_length=2048)
     # Running number unique among documents with same keyword, starting from 0
     doc_suppl = models.IntegerField(blank=True, null=True)
+    # # Documents edition
+    version = models.IntegerField(blank=True, null=True)
 
     class Meta:
+        # managed = False
         db_table = 'document'
 
 class Termsim(abstract.AbstractBaseModel):
@@ -75,14 +80,16 @@ class Termsim(abstract.AbstractBaseModel):
     similarity = models.FloatField()
 
     class Meta:
+        # managed = False
         db_table = 'termsim'
 
 
 class Entity(abstract.AbstractBaseModel):
     ent_id = models.AutoField(primary_key=True)
-    doc_id = models.IntegerField(blank=True, null=True)
+    doc_id =  models.IntegerField(blank=True, null=True)
     ent_type = models.TextField()
     ent_name = models.TextField()
 
     class Meta:
+        # managed = False
         db_table = 'entity'
