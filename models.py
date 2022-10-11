@@ -18,7 +18,7 @@ class Term(abstract.AbstractBaseModel):
 
     term_id = models.AutoField(primary_key=True)
     # The word in lowercase
-    term_term = models.CharField(unique=True, max_length=100)
+    term_term = models.CharField(max_length=100)
     # # Not used?
     term_stem = models.CharField(max_length=100, blank=True, null=True)
     # # Document frequency, how many documents contain the word at least once
@@ -28,6 +28,7 @@ class Term(abstract.AbstractBaseModel):
 
     class Meta:
         # managed = False
+        unique_together = [['term_term', 'version']]
         db_table = 'term'
 
 
@@ -43,6 +44,7 @@ class DocTerm(abstract.AbstractBaseModel):
     tf = models.IntegerField(blank=True, null=True)
     # # Documents edition
     version = models.IntegerField(blank=True, null=True)
+
     class Meta:
         # managed = False
         db_table = 'doc_term'
@@ -78,6 +80,7 @@ class Termsim(abstract.AbstractBaseModel):
     term = models.ForeignKey('Term', on_delete=models.PROTECT, db_column='term2_id')
     # Similarity between 0 and 1
     similarity = models.FloatField()
+    version = models.IntegerField(blank=True, null=True)
 
     class Meta:
         # managed = False
@@ -86,7 +89,7 @@ class Termsim(abstract.AbstractBaseModel):
 
 class Entity(abstract.AbstractBaseModel):
     ent_id = models.AutoField(primary_key=True)
-    doc_id =  models.IntegerField(blank=True, null=True)
+    doc_id =  models.ForeignKey('Document', on_delete=models.PROTECT, db_column='doc_id')
     ent_type = models.TextField()
     ent_name = models.TextField()
 
