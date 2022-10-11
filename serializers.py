@@ -5,7 +5,7 @@ from .models import Term, Document, DocTerm, Termsim, Entity
 class TermSerializer(serializers.ModelSerializer):
     class Meta:
         model = Term
-        fields = ['term_term', 'term_stem', 'term_df']
+        fields = ['term_id', 'term_term', 'term_stem', 'term_df']
 
 class TermsimSerializer(serializers.ModelSerializer):
     term = TermSerializer(read_only=True)
@@ -33,10 +33,10 @@ class DocTermSerializer(serializers.ModelSerializer):
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = ['doc_keyword', 'doc_text', 'doc_suppl']
+        fields = ['doc_id', 'doc_keyword', 'doc_text', 'doc_suppl']
 
 class QuerySerializer(serializers.ModelSerializer):
     doc_terms = DocTermSerializer(many=True)
     class Meta:
         model = Document
-        fields = ['doc_keyword', 'doc_abstr', 'doc_terms', 'doc_suppl']
+        fields = ['doc_id', 'doc_keyword', 'doc_abstr', 'doc_terms', 'doc_suppl']

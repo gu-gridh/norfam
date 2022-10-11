@@ -1,3 +1,4 @@
+from ensurepip import version
 import re
 import timeit
 from rest_framework import viewsets
@@ -43,8 +44,20 @@ class TermViewSet(viewsets.ModelViewSet):
 
 class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
-    queryset = Document.objects.all()
     lookup_field = 'doc_id'
+    queryset = Document.objects.all()
+
+    # def get_queryset(self):
+    #     data_edition = "1"
+    #     if "v" in self.request.GET:
+    #         data_edition = self.request.GET["v"]
+
+    #     edition = 2 if int(data_edition) == 2 else 1
+
+    #     queryset = Document.objects.filter(version=edition).all()
+    #     print(queryset.query)
+    #     return queryset
+
 
     # filter_backends = [DjangoFilterBackend]
     # filterset_fields = '__all__'
@@ -53,11 +66,16 @@ class DocumentViewSet(viewsets.ModelViewSet):
 class TermsimViewSet(viewsets.ModelViewSet):
     serializer_class = NeighborhoodSerializer
     def get_queryset(self): 
+        data_edition = 1
+        if "v" in self.request.GET:
+            data_edition = self.request.GET["v"]
+
+        edition = 2 if int(data_edition) == 2 else 1     
         q = self.request.query_params.get('q')
         q = [str(term).lower() for term in re.split(r"\s+", self.request.GET.get("q"))]
         queryset = Term.objects.distinct().prefetch_related(
             Prefetch('neighbors', queryset=Termsim.objects.order_by('-similarity'))
-        ).select_related().filter(neighbors__target__term_term__in=q).all()
+        ).select_related().filter(neighbors__target__term_term__in=q).filter(version=edition).all()
         return queryset
        
     # filter_backends = [DjangoFilterBackend]
@@ -80,15 +98,23 @@ class EntityViewSet(viewsets.ModelViewSet):
 class QueryViewSet(viewsets.ModelViewSet):
     serializer_class = QuerySerializer
     def get_queryset(self):
+        data_edition = 1
         search_mode = "w"
+        if "v" in self.request.GET:
+            data_edition = self.request.GET["v"]
         if "m" in self.request.GET:
             search_mode = self.request.GET["m"]
         q = [str(term).lower() for term in re.split(r"\s+", self.request.GET["q"])]
+
+        edition = 2 if int(data_edition) == 2 else 1
+
         if search_mode == "t":
             tic = timeit.default_timer()
             queryset = Document.objects.distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
-            ).select_related().filter(doc_terms__term__term_term__in=q).all()
+            ).select_related().filter(doc_terms__term__term_term__in=q).all().filter(version=edition)
+
+            print(queryset.values('doc_id'))
             toc = timeit.default_timer()
             print(toc-tic)
             return sorted(queryset, key=cmp_to_key(sort_tfidf))
@@ -97,29 +123,6 @@ class QueryViewSet(viewsets.ModelViewSet):
             from django.db.models.functions import Lower
             queryset = Document.objects.annotate(doc_keyword_lower=Lower('doc_keyword')).distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
-            ).filter(doc_keyword_lower__in=q).all()
+            ).filter(doc_keyword_lower__in=q).filter(version=edition).all().order_by('doc_keyword', 'doc_suppl')
+            print(queryset.values('doc_id'))
             return queryset
-
-# class QueryViewSet(viewsets.ModelViewSet):
-#     serializer_class = QuerySerializer
-#     def get_queryset(self):
-#         search_mode = "w"
-#         if "m" in self.request.GET:
-#             search_mode = self.request.GET["m"]
-#         database = "cdh"
-#         q = [str(term).lower() for term in re.split(r"\s+", self.request.GET["q"])]
-#         if search_mode == "t":
-#             tic = timeit.default_timer()
-#             queryset = Document.objects.distinct().prefetch_related(
-#                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
-#             ).select_related().filter(doc_terms__term__term_term__in=q).all().using(database)
-#             print(queryset.query)
-#             toc = timeit.default_timer()
-#             print(toc-tic)
-#             return sorted(queryset, key=cmp_to_key(sort_tfidf))
-#         else:
-#             queryset = Document.objects.distinct().prefetch_related(
-#                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
-#             ).filter(doc_keyword__in=q).all().using(database).order_by('doc_keyword', 'doc_suppl')
-#             print(queryset.query)
-#             return queryset
