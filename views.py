@@ -46,22 +46,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     lookup_field = 'doc_id'
     queryset = Document.objects.all()
-
-    # def get_queryset(self):
-    #     data_edition = "1"
-    #     if "v" in self.request.GET:
-    #         data_edition = self.request.GET["v"]
-
-    #     edition = 2 if int(data_edition) == 2 else 1
-
-    #     queryset = Document.objects.filter(version=edition).all()
-    #     print(queryset.query)
-    #     return queryset
-
-
-    # filter_backends = [DjangoFilterBackend]
-    # filterset_fields = '__all__'
-    # schema = schemas.MetaDataSchema()
     
 class TermsimViewSet(viewsets.ModelViewSet):
     serializer_class = NeighborhoodSerializer
@@ -102,19 +86,17 @@ class QueryViewSet(viewsets.ModelViewSet):
         search_mode = "w"
         if "v" in self.request.GET:
             data_edition = self.request.GET["v"]
+            data_edition = int(data_edition)
+           
         if "m" in self.request.GET:
             search_mode = self.request.GET["m"]
         q = [str(term).lower() for term in re.split(r"\s+", self.request.GET["q"])]
-
-        edition = 2 if int(data_edition) == 2 else 1
 
         if search_mode == "t":
             tic = timeit.default_timer()
             queryset = Document.objects.distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
-            ).select_related().filter(doc_terms__term__term_term__in=q).all().filter(version=edition)
-
-            print(queryset.values('doc_id'))
+            ).select_related().filter(doc_terms__term__term_term__in=q).all().filter(version=data_edition)
             toc = timeit.default_timer()
             print(toc-tic)
             return sorted(queryset, key=cmp_to_key(sort_tfidf))
@@ -123,6 +105,5 @@ class QueryViewSet(viewsets.ModelViewSet):
             from django.db.models.functions import Lower
             queryset = Document.objects.annotate(doc_keyword_lower=Lower('doc_keyword')).distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
-            ).filter(doc_keyword_lower__in=q).filter(version=edition).all().order_by('doc_keyword', 'doc_suppl')
-            print(queryset.values('doc_id'))
+            ).filter(doc_keyword_lower__in=q).filter(version=data_edition).all().order_by('doc_keyword', 'doc_suppl')
             return queryset
