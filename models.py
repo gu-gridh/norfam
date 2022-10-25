@@ -29,7 +29,6 @@ class Term(abstract.AbstractBaseModel):
     class Meta:
         # managed = False
         unique_together = [['term_term', 'version']]
-        db_table = 'term'
 
 
 class DocTerm(abstract.AbstractBaseModel):
@@ -45,9 +44,6 @@ class DocTerm(abstract.AbstractBaseModel):
     # # Documents edition
     version = models.IntegerField(blank=True, null=True)
 
-    class Meta:
-        # managed = False
-        db_table = 'doc_term'
 
 class Document(abstract.AbstractBaseModel):
     """An encyclopedic article on a topic."""
@@ -64,9 +60,6 @@ class Document(abstract.AbstractBaseModel):
     # # Documents edition
     version = models.IntegerField(blank=True, null=True)
 
-    class Meta:
-        # managed = False
-        db_table = 'document'
 
 class Termsim(abstract.AbstractBaseModel):
     """Similarity of two terms.
@@ -82,17 +75,9 @@ class Termsim(abstract.AbstractBaseModel):
     similarity = models.FloatField()
     version = models.IntegerField(blank=True, null=True)
 
-    class Meta:
-        # managed = False
-        db_table = 'termsim'
-
 
 class Entity(abstract.AbstractBaseModel):
     ent_id = models.AutoField(primary_key=True)
     doc_id =  models.ForeignKey('Document', on_delete=models.PROTECT, db_column='doc_id')
     ent_type = models.TextField()
     ent_name = models.TextField()
-
-    class Meta:
-        # managed = False
-        db_table = 'entity'
