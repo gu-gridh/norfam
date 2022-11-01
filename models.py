@@ -29,8 +29,8 @@ class Term(abstract.AbstractBaseModel):
     class Meta:
         # managed = False
         unique_together = [['term_term', 'version']]
-        verbose_name = _("term")
-        verbose_name_plural = _("term.plural")
+        verbose_name = _("norfam.term")
+        verbose_name_plural = _("norfam.term.plural")
 
 
 class DocTerm(abstract.AbstractBaseModel):
@@ -48,7 +48,7 @@ class DocTerm(abstract.AbstractBaseModel):
 
     class Meta:
         # managed = False
-        verbose_name = _("document_term")
+        verbose_name = _("norfam.document_term")
         verbose_name_plural = _("norfam.document_term.plural")
 
 
@@ -69,8 +69,8 @@ class Document(abstract.AbstractBaseModel):
 
     class Meta:
         # managed = False
-        verbose_name = _("document")
-        verbose_name_plural = _("document.plural")
+        verbose_name = _("norfam.document")
+        verbose_name_plural = _("norfam.document.plural")
 
 
 class Termsim(abstract.AbstractBaseModel):
@@ -102,5 +102,5 @@ class Entity(abstract.AbstractBaseModel):
 
     class Meta:
         # managed = False
-        verbose_name = _("entity")
-        verbose_name_plural = _("entity.plural")
+        verbose_name = _("norfam.entity")
+        verbose_name_plural = _("norfam.entity.plural")
