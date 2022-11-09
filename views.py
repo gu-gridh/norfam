@@ -1,10 +1,8 @@
-from ensurepip import version
 import re
 import timeit
 from rest_framework import viewsets
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.renderers import JSONRenderer
 from . import schemas
+from diana.abstract.views import *
 from .serializers import TermSerializer, DocumentSerializer, TermsimSerializer, DocTermSerializer, NeighborhoodSerializer, EntitySerializer, QuerySerializer
 from .models import Term, Document, DocTerm, Termsim, Entity
 from django.db.models import Prefetch
@@ -32,7 +30,7 @@ def sort_tfidf(docA, docB):
         return 0
 
 
-class TermViewSet(viewsets.ModelViewSet):
+class TermViewSet(GenericModelViewSet):
     queryset = Term.objects.all()
     serializer_class = TermSerializer
     lookup_field = 'term_term'
@@ -42,12 +40,12 @@ class TermViewSet(viewsets.ModelViewSet):
     # schema = schemas.MetaDataSchema()
     
 
-class DocumentViewSet(viewsets.ModelViewSet):
+class DocumentViewSet(GenericModelViewSet):
     serializer_class = DocumentSerializer
     lookup_field = 'doc_id'
     queryset = Document.objects.all()
     
-class TermsimViewSet(viewsets.ModelViewSet):
+class TermsimViewSet(GenericModelViewSet):
     serializer_class = NeighborhoodSerializer
     def get_queryset(self): 
         data_edition = 1
@@ -67,7 +65,7 @@ class TermsimViewSet(viewsets.ModelViewSet):
     # schema = schemas.MetaDataSchema()
 
 
-class EntityViewSet(viewsets.ModelViewSet):
+class EntityViewSet(GenericModelViewSet):
     # queryset = Entity.objects.all()
     serializer_class = EntitySerializer
     def get_queryset(self):
@@ -79,7 +77,7 @@ class EntityViewSet(viewsets.ModelViewSet):
     # filterset_fields = '__all__'
     # schema = schemas.MetaDataSchema()
 
-class QueryViewSet(viewsets.ModelViewSet):
+class QueryViewSet(GenericModelViewSet):
     serializer_class = QuerySerializer
     def get_queryset(self):
         data_edition = 1
