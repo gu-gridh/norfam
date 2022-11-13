@@ -30,7 +30,7 @@ def sort_tfidf(docA, docB):
         return 0
 
 
-class TermViewSet(GenericModelViewSet):
+class TermViewSet(viewsets.ModelViewSet):
     queryset = Term.objects.all()
     serializer_class = TermSerializer
     lookup_field = 'term_term'
@@ -40,32 +40,31 @@ class TermViewSet(GenericModelViewSet):
     # schema = schemas.MetaDataSchema()
     
 
-class DocumentViewSet(GenericModelViewSet):
+class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     lookup_field = 'doc_id'
     queryset = Document.objects.all()
     
-class TermsimViewSet(GenericModelViewSet):
+class TermsimViewSet(viewsets.ModelViewSet):
     serializer_class = NeighborhoodSerializer
     def get_queryset(self): 
         data_edition = 1
         if "v" in self.request.GET:
             data_edition = self.request.GET["v"]
-
         edition = 2 if int(data_edition) == 2 else 1     
         q = self.request.query_params.get('q')
         q = [str(term).lower() for term in re.split(r"\s+", self.request.GET.get("q"))]
         queryset = Term.objects.distinct().prefetch_related(
             Prefetch('neighbors', queryset=Termsim.objects.order_by('-similarity'))
-        ).select_related().filter(neighbors__target__term_term__in=q).filter(version=edition).all()
+        ).select_related().filter(neighbors__target__term_term__in=q).all().filter(version=edition)
+        print(queryset.query)
         return queryset
        
     # filter_backends = [DjangoFilterBackend]
     # filterset_fields = '__all__'
     # schema = schemas.MetaDataSchema()
 
-
-class EntityViewSet(GenericModelViewSet):
+class EntityViewSet(viewsets.ModelViewSet):
     # queryset = Entity.objects.all()
     serializer_class = EntitySerializer
     def get_queryset(self):
@@ -77,7 +76,7 @@ class EntityViewSet(GenericModelViewSet):
     # filterset_fields = '__all__'
     # schema = schemas.MetaDataSchema()
 
-class QueryViewSet(GenericModelViewSet):
+class QueryViewSet(viewsets.ModelViewSet):
     serializer_class = QuerySerializer
     def get_queryset(self):
         data_edition = 1
