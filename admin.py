@@ -2,6 +2,7 @@ from pydoc import Doc
 from django.contrib import admin
 from django.contrib.gis.db import models
 from .models import *
+from diana.abstract.admin_view import *
 import diana.abstract.models
 from diana.abstract.models import DEFAULT_EXCLUDE, DEFAULT_FIELDS, get_many_to_many_fields
 from django.contrib.gis import admin
@@ -37,3 +38,12 @@ class TermsimAdmin(admin.ModelAdmin):
 @admin.register(Entity)
 class EntityAdmin(admin.ModelAdmin):
     list_display = get_fields(Entity) + DEFAULT_FIELDS 
+
+ordering = [
+        "Documents",
+        "Terms",
+        "Document-term relations", 
+        "Term similarities",
+        "Entities"]
+
+get_apps_order('Norfam', ordering)
