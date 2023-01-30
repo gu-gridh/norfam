@@ -57,7 +57,6 @@ class TermsimViewSet(viewsets.ModelViewSet):
         queryset = Term.objects.distinct().prefetch_related(
             Prefetch('neighbors', queryset=Termsim.objects.order_by('-similarity'))
         ).select_related().filter(neighbors__target__term_term__in=q).all().filter(version=edition)
-        print(queryset.query)
         return queryset
        
     # filter_backends = [DjangoFilterBackend]
@@ -95,12 +94,12 @@ class QueryViewSet(viewsets.ModelViewSet):
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
             ).select_related().filter(doc_terms__term__term_term__in=q).all().filter(version=data_edition)
             toc = timeit.default_timer()
-            print(toc-tic)
             return sorted(queryset, key=cmp_to_key(sort_tfidf))
             
         else:
             from django.db.models.functions import Lower
-            queryset = Document.objects.annotate(doc_keyword_lower=Lower('doc_keyword')).distinct().prefetch_related(
+            queryset = Document.objects.annotate(
+                doc_keyword_lower=Lower('doc_keyword')).distinct().prefetch_related(
                 Prefetch('doc_terms', queryset = DocTerm.objects.filter(term__term_term__in=q))
             ).filter(doc_keyword_lower__in=q).filter(version=data_edition).all().order_by('doc_keyword', 'doc_suppl')
             return queryset

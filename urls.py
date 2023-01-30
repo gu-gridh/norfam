@@ -8,9 +8,6 @@ router = routers.DefaultRouter()
 endpoint = utils.build_app_endpoint("norfam")
 documentation = utils.build_app_api_documentation("norfam", endpoint)
 
-
-router = routers.DefaultRouter()
-
 router.register(rf'{endpoint}/terms', views.TermViewSet, basename="term")
 router.register(rf'{endpoint}/termsim', views.TermsimViewSet, basename="termsim")
 router.register(rf'{endpoint}/entities', views.EntityViewSet, basename="entity")
