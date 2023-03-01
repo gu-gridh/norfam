@@ -21,6 +21,6 @@ urlpatterns = [
 
     # Automatically generated views
     *utils.get_model_urls('norfam', f'{endpoint}', exclude=['page', 'work', 'work_authors']),
-    path(f'{endpoint}/api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    # path(f'{endpoint}/api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 
 ]
